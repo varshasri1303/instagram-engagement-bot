@@ -1,0 +1,350 @@
+{
+  "name": "instagram_engagement_bot",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Hashtags",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Hashtags"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "39966da4-e1ed-4971-a3ce-4181a045ff29",
+      "name": "On form submission",
+      "webhookId": "7d84f58d-4478-4888-a7a8-233d2a8138ad"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MJ4kg9VcOP96_m-tDYgXDY_6ayWCuPvYdVevzONuAXY",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MJ4kg9VcOP96_m-tDYgXDY_6ayWCuPvYdVevzONuAXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MJ4kg9VcOP96_m-tDYgXDY_6ayWCuPvYdVevzONuAXY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "username": "={{ $json.username }}",
+            "caption": "={{ $json.caption }}",
+            "url": "={{ $json.url }}",
+            "likes": "={{ $json.likes }}",
+            "dm_message": "={{ $json.dm_message }}",
+            "dm_status": "={{ $json.dm_status }}",
+            "follow_status": "={{ $json.follow_status }}",
+            "follow_up_day": "={{ $json.follow_up_day }}",
+            "timestamp": "={{ $json.follow_up_message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "likes",
+              "displayName": "likes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dm_message",
+              "displayName": "dm_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dm_status",
+              "displayName": "dm_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow_status",
+              "displayName": "follow_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "follow_up_day",
+              "displayName": "follow_up_day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "74a4e71d-ff8c-4c8e-bba9-dc94589daecb",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wmkPFjNU6FHXDvXj",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json.Hashtags;\n\nconst hashtagsArray = input\n  .split(\",\")\n  .map(tag => tag.trim().toLowerCase().replace(/\\s+/g, \"\"));\n\nreturn [{ json: { hashtags: hashtagsArray } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "523f4999-bcfe-48fb-a846-659dd4babd83",
+      "name": "prepare hashtags"
+    },
+    {
+      "parameters": {
+        "jsCode": "const posts = $input.all();\n\nconst filtered = posts\n  .map(item => item.json)\n  .map(post => {\n    const caption = post.caption?.toLowerCase() || \"\";\n\n    let score = 0;\n\n    if (caption.includes(\"ai\")) score += 5;\n    if (caption.includes(\"data\") || caption.includes(\"ml\")) score += 3;\n    if (caption.includes(\"hiring\") || caption.includes(\"job\")) score += 4;\n    if (post.likesCount > 10) score += 2;\n\n    return {\n      username: post.ownerUsername,\n      caption: post.caption,\n      url: post.url,\n      likes: post.likesCount,\n      score: score\n    };\n  })\n  .filter(post => post.score >= 6);\n\nreturn filtered.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "139d693b-69e8-4cd6-8b29-66fbb01f8873",
+      "name": "filter + clean data"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const username = item.json.username;\n  const caption = (item.json.caption || \"\").toLowerCase();\n\n  let dm = \"\";\n\n  if (caption.includes(\"hiring\") || caption.includes(\"job\")) {\n    dm = `Hi ${username}, saw you're hiring in AI — would love to connect!`;\n  } \n  else if (caption.includes(\"training\") || caption.includes(\"course\")) {\n    dm = `Hi ${username}, noticed your AI training post — looks interesting!`;\n  } \n  else {\n    dm = `Hi ${username}, came across your post — would love to connect!`;\n  }\n\n  return {\n    json: {\n      ...item.json,\n      dm_message: dm,\n      dm_status: \"generated\"\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "96accbb1-40d0-4bf4-9689-f5f3f4c217a0",
+      "name": "DM Generation"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({\n  json: {\n    ...item.json,\n    follow_status: \"simulated_follow\"\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "4c9535a5-e1c6-47cf-b25c-ba27ecc74f7b",
+      "name": "follow"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({\n  json: {\n    ...item.json,\n    follow_up_day: \"Day 3\",\n    follow_up_message: `Hi ${item.json.username}, just following up 🙂`\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "76f7eb3c-76ce-4dc2-b3f8-a5d513a4524d",
+      "name": "follow_up_msg"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-hashtag-scraper/run-sync-get-dataset-items?token=apify_api_ygevKyc0Vf0gtSgiFis7QwIVWldfgC12fiY0",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"hashtags\": {{ JSON.stringify($json.hashtags) }},\n  \"resultsLimit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "bca8daed-55fd-417b-9112-cb98a5b5cba6",
+      "name": "Apify scraper"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "prepare hashtags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare hashtags": {
+      "main": [
+        [
+          {
+            "node": "Apify scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter + clean data": {
+      "main": [
+        [
+          {
+            "node": "DM Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DM Generation": {
+      "main": [
+        [
+          {
+            "node": "follow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "follow": {
+      "main": [
+        [
+          {
+            "node": "follow_up_msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "follow_up_msg": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apify scraper": {
+      "main": [
+        [
+          {
+            "node": "filter + clean data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ab262fc9-c077-4ef7-8030-57bfa34ec39a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "835fab408d38c9026d956241e482dd9bd3605ac414677d77d89ee8140b6d18f5"
+  },
+  "id": "T9WjZiAxglCuDy4k",
+  "tags": []
+}
